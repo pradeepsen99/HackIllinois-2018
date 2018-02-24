@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "react-native-student",
-    "description": "A very interesting project.",
-    "slug": "react-native-student",
+    "name": "hackillinois-react-studentversion",
+    "description": "This project is really great.",
+    "slug": "hackillinois-react-studentversion",
     "privacy": "public",
     "sdkVersion": "25.0.0",
     "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
