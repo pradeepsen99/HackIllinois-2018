@@ -1,14 +1,10 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, View, Dimensions, ScrollView} from 'react-native';
 import * as firebase from "firebase";
-import {Button, Header} from 'react-native-elements';
+import {Button, Header, Text} from 'react-native-elements';
 
 export default class App extends Component {
 
-  /**
-   * Hides the stack bar from showing up
-   * @type {{header: null}}
-   */
   static navigationOptions = {
     header: null,
   };
@@ -17,39 +13,42 @@ export default class App extends Component {
     super(props);
     this.state = {
       isLoading: false,
-      error: 2,
       responseJSON: null,
-      headerText: null,
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+      }),
     };
+    this.itemsRef = this.getRef().child('items');
   }
 
-  /**
-   * This function takes the latitude and longitude values given in and inputs it into the mtd api and makes a GET
-   * for all the stops nearest to the latitude and longitude given in.
-   */
-  getDatabase() {
-    fetch('https://hackillinois-2018.firebaseio.com/.json?print=pretty')
-    .then((response) => response.json())
-    .then((responseJson) => {
-      this.setState({
-        responseJSON: responseJson,
-        isLoading: false,
-      }, function () {
+  getRef() {
+    return firebaseApp.database().ref();
+  }
 
+  listenForItems(itemsRef) {
+    itemsRef.on('value', (snap) => {
+
+      // get children as an array
+      var items = [];
+      snap.forEach((child) => {
+        items.push({
+          french: child.val().french,
+          english: child.val().english,
+          _key: child.key
+        });
       });
-    })
-    .catch((error) => {
-      //errors
+
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(items)
+      });
+
     });
-
   }
 
-  /**
-   * This runs when the app starts to load up the data on the stops.
-   */
   componentDidMount() {
-    //this.getDatabase();
+    this.listenForItems(this.itemsRef);
   }
+
 
   componentWillMount() {
     firebase.initializeApp({
@@ -64,17 +63,12 @@ export default class App extends Component {
 
   onButtonPressed() {
     this.database = firebase.database();
-    firebase.database().ref('/Users/TestUser/0/Notes').on(
+    firebase.database().ref('/Users/TestUser/0').on(
         "value", snapshot => {
           this.setState({headerText: snapshot.val()})
         })
   }
 
-  /**
-   * render menu.
-   * This one actually loads up what we see.
-   * @returns {*}
-   */
   render() {
     if (this.state.isLoading) {
       return (
@@ -91,7 +85,7 @@ export default class App extends Component {
           <View>
             <Header
                 centerComponent={{
-                  text: this.state.headerText,
+                  text: 'Scroll',
                   style: {
                     color: 'white',
                     fontSize: 20
@@ -99,9 +93,9 @@ export default class App extends Component {
                 }}
             />
           </View>
-          <Button
-              title='GO' color='white'
-              onPress={this.onButtonPressed.bind(this)}/>
+
+
+
         </View>
     );
   }
