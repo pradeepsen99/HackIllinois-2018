@@ -36,13 +36,11 @@ const firebaseConfig = {
 
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 
-
-
 export class FirstActivity  extends Component {
 
   static navigationOptions =
       {
-        title: 'FirstActivity',
+        title: 'Lectures',
       };
 
   OpenSecondActivity (rowData)
@@ -158,7 +156,7 @@ class SecondActivity extends Component
 
   static navigationOptions =
       {
-        title: 'SecondActivity',
+        title: 'Notes',
       };
 
   render()
