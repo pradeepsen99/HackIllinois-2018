@@ -1,45 +1,87 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, View, Dimensions, ScrollView} from 'react-native';
+import {
+  ActivityIndicator,
+  View,
+  Dimensions,
+  ScrollView, ListView
+} from 'react-native';
 import * as firebase from "firebase";
-import {Button, Header, Text} from 'react-native-elements';
+import { StackNavigator } from 'react-navigation';
+import {
+  Container,
+  Header,
+  Title,
+  Content,
+  Button,
+  Icon,
+  List,
+  ListItem,
+  Text,
+  Left,
+  Right,
+  Body,
+  Item,
+  Input,
+  Form
+} from "native-base";
 
-export default class App extends Component {
+const firebaseConfig = {
+  apiKey: "AIzaSyCEmtGw8bbRb5FWp2RE4uFL46khLo1OGNk",
+  authDomain: "scroll-f9e43.firebaseapp.com",
+  databaseURL: "https://scroll-f9e43.firebaseio.com",
+  projectId: "scroll-f9e43",
+  storageBucket: "scroll-f9e43.appspot.com",
+  messagingSenderId: "422097259298"
+};
 
-  static navigationOptions = {
-    header: null,
-  };
+const firebaseApp = firebase.initializeApp(firebaseConfig);
 
+
+
+export class FirstActivity  extends Component {
+
+  static navigationOptions =
+      {
+        title: 'FirstActivity',
+      };
+
+  OpenSecondActivity (rowData)
+  {
+
+    this.props.navigation.navigate('Second', { ListViewClickItemHolder: rowData });
+
+  }
   constructor(props) {
     super(props);
     this.state = {
+      database: null,
       isLoading: false,
       responseJSON: null,
-      dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2,
-      }),
+      headerText: "Scroll App",
+      dataSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2}),
     };
-    this.itemsRef = this.getRef().child('items');
+    this.itemsRef = this.getRef().child('Users').child('TestUser');
   }
 
   getRef() {
-    return firebaseApp.database().ref();
+    return firebaseApp.database().ref('/');
   }
+
+
 
   listenForItems(itemsRef) {
     itemsRef.on('value', (snap) => {
 
       // get children as an array
-      var items = [];
+      var words = [];
       snap.forEach((child) => {
-        items.push({
-          french: child.val().french,
-          english: child.val().english,
-          _key: child.key
+        words.push({
+          Notes: child.val().Notes,
+          Title: child.val().Title,
         });
       });
-
       this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(items)
+        dataSource: this.state.dataSource.cloneWithRows(words)
       });
 
     });
@@ -49,54 +91,91 @@ export default class App extends Component {
     this.listenForItems(this.itemsRef);
   }
 
-
-  componentWillMount() {
-    firebase.initializeApp({
-      apiKey: 'AIzaSyCEmtGw8bbRb5FWp2RE4uFL46khLo1OGNk',
-      authDomain: 'scroll-f9e43.firebaseapp.com',
-      databaseURL: 'https://scroll-f9e43.firebaseio.com',
-      projectId: 'scroll-f9e43',
-      storageBucket: 'scroll-f9e43.appspot.com',
-      messagingSenderId: '422097259298'
-    });
-  }
-
   onButtonPressed() {
     this.database = firebase.database();
-    firebase.database().ref('/Users/TestUser/0').on(
+    firebase.database().ref('/Users/TestUser/2/Notes').on(
         "value", snapshot => {
           this.setState({headerText: snapshot.val()})
         })
   }
 
-  render() {
-    if (this.state.isLoading) {
+  ListViewItemSeparatorLine = () => {
+    return (
+        <View
+            style={{
+              height: .5,
+              width: "100%",
+              backgroundColor: "#000",
+            }}
+        />
+    );
+  }
+
+  /**
+   * if (this.state.isLoading) {
       return (
           <View style={{flex: 1, paddingTop: 20}}>
             <ActivityIndicator/>
           </View>
       );
     }
+   */
 
+  render() {
     return (
         <View style={{
           flex: 1
         }}>
-          <View>
-            <Header
-                centerComponent={{
-                  text: 'Scroll',
-                  style: {
-                    color: 'white',
-                    fontSize: 20
-                  }
-                }}
-            />
-          </View>
+          <ListView
+              dataSource={this.state.dataSource}
+              renderRow={data =>
+                  <ListItem style={{paddingLeft: 20}} onPress={this.OpenSecondActivity.bind(this, data.Notes)}>
+                    <Text>
+                      {data.Title}
+                    </Text>
+                  </ListItem>
+              }
+          />
 
+          <Button
+              title='GO' color='white'
+              onPress={this.onButtonPressed.bind(this)}/>
 
 
         </View>
     );
   }
+   _renderItem(item) {
+    return (
+        <ListItem />
+    );
+  }
 }
+
+
+class SecondActivity extends Component
+{
+
+  static navigationOptions =
+      {
+        title: 'SecondActivity',
+      };
+
+  render()
+  {
+    return(
+        <View>
+
+          <Text> { this.props.navigation.state.params.ListViewClickItemHolder } </Text>
+
+        </View>
+    );
+  }
+}
+
+export default Project = StackNavigator(
+    {
+      First: { screen: FirstActivity },
+
+      Second: { screen: SecondActivity }
+    });
