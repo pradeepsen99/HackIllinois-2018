@@ -1,4 +1,4 @@
-# Project Title
+# Scroll
 
 Scroll is a multi/cross platform application whose aim is to provide convenient Speech-to-text 
 
